@@ -295,7 +295,7 @@ Let's re-create this chart, but using better tools that we can access in R. If I
 
 To build a whole case on there being systemic misreported COVID data based on three weeks of data is a risky move, and we're going to take a look at the CDC data again, now split out by cause of death.
 
-```{r fuck-cherry-pickers, echo=FALSE, message=FALSE, warning=FALSE}
+```{r fuck-cherry-pickers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=22, fig.width=7}
 
 library(ISOweek)
 
@@ -342,7 +342,7 @@ plot5 <- final_table2 %>%
        title="Total Deaths by Year and Age Banded Cohort",
        caption="Source: CDC",
        fill="Age Cohort") +
-  facet_wrap(facets= `Cause Group`~., ncol=4)
+  facet_wrap(facets= `Cause Group`~., ncol=1)
 
 plot5
   
