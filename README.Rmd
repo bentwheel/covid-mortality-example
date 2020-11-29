@@ -13,7 +13,7 @@ Source data is obtained at [https://data.cdc.gov/NCHS/Provisional-COVID-19-Death
 
 To validate the data, first I will recreate some of the exhibits in Briand's lecture featured in the article. Since I'm using R instead of Excel, I can use the Viridis package, which is helpful for people experiencing colorblindness in viewing color-contrasted visualizations.
 
-```{r validate, echo=FALSE, message=FALSE, warning=FALSE}
+```{r validate, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 library(httr)
 library(rlist)
@@ -101,7 +101,7 @@ Now we'll look at another presentation of the data available on the CDC website,
 
 Using the [CDC Wonder](https://wonder.cdc.gov/ucd-icd10.html) system we can query mortality by the same age banded cohorts all the way back to 1999! Use of this system requires you agree to not use the data for bad purposes such as using it to positively identify people, so I can't write the code that generates this document to pull the data in automatically. Nonetheless, the data used here is retrieved from the link above on Sat Nov 28 2020 at around 8:30 PM. Finally, since death is seasonal over time I'm only going to look at data on an annual basis, but split out into the same age-banded cohorts.
 
-```{r mortality-over-time, echo=FALSE, message=FALSE, warning=FALSE}
+```{r mortality-over-time, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 data2 <- read_delim("Underlying Cause of Death, 1999-2018.txt", "\t",
                     escape_double = FALSE, trim_ws = TRUE) %>% 
@@ -144,7 +144,7 @@ The point of this initial discussion is that we can glean absolutely no informat
 
 Now let's take a look at mortality *rates* over time broken out by the age cohorts.
 
-```{r mortality-over-time-2, echo=FALSE, message=FALSE, warning=FALSE}
+```{r mortality-over-time-2, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 plot3.data <- data2 %>% 
   group_by(Year, 
@@ -182,7 +182,7 @@ Now we'll look at a proxy for what the CDC refers to as **age-adjusted mortality
 
 We'll capture that in another view similar to the first two graphs, where we'll break down each age cohort's contribution to the total mortality rate in the US for that year.
 
-```{r mortality-over-time-3, echo=FALSE, message=FALSE, warning=FALSE}
+```{r mortality-over-time-3, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 plot3b <- plot3.data %>% 
   ggplot(mapping=aes(x=as_factor(Year), y=contrib_to_q_x,
@@ -214,7 +214,7 @@ We have a problem, though. Our CDC data is really complete through, at best, 10/
 
 Because I think we've thrashed this dead horse, and because I like to end on a "cut the crap" visualization that shows things as they are, no filtration, no rates, just raw numbers and sizes and colors: I present to you a stacked histogram of raw deaths over time in the US.
 
-```{r mortality-over-time-4, echo=FALSE, message=FALSE, warning=FALSE}
+```{r mortality-over-time-4, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 plot4.data.historical <- read_delim("Underlying Cause of Death, 1999-2018_pull2.txt", 
     "\t", escape_double = FALSE, col_types = cols(Notes = col_skip(), 
@@ -295,7 +295,7 @@ Let's re-create this chart, but using better tools that we can access in R. If I
 
 To build a whole case on there being systemic misreported COVID data based on three weeks of data is a risky move, and we're going to take a look at the CDC data again, now split out by cause of death.
 
-```{r fuck-cherry-pickers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=22, fig.width=7}
+```{r fuck-cherry-pickers, echo=FALSE, message=FALSE, warning=FALSE, dpi=300}
 
 library(ISOweek)
 
@@ -315,41 +315,41 @@ final_table2 <- table2 %>%
   mutate(`Number of Deaths` = as.numeric(`Number of Deaths`),
          `Week Ending Date` = as.Date(`Week Ending Date`),
          isow =   as.character(ISOweek::date2ISOweek(`Week Ending Date`)),
-         pretty_isoweek = str_sub(isow, 6, 8)) %>% 
+         pretty_isoweek = as.numeric(str_sub(isow, 7, 8))) %>% 
   filter(Type == "Unweighted",
          Jurisdiction == "United States",
-         `Week Ending Date` <= ymd(20201031),
+         !(`Cause Group` %in% c("Malignant neoplasms")),
+         pretty_isoweek <= 44,
          Year >= 2016) %>% 
-  group_by(pretty_isoweek, Year, `Cause Group`) %>% 
+  group_by(`Week Ending Date`, isow, pretty_isoweek, Year, `Cause Group`) %>% 
   summarize(`Number of Deaths` = sum(`Number of Deaths`, na.rm=T)) %>% 
   ungroup() %>% 
-  arrange(pretty_isoweek, Year)
+  arrange(pretty_isoweek, Year) 
 
 plot5 <- final_table2 %>% 
-  ggplot(aes(x = as_factor(pretty_isoweek), y = `Number of Deaths`,
-             color=Year, group=Year)) +
+  ggplot(aes(x = pretty_isoweek, y = `Number of Deaths`,
+             color=`Cause Group`, group=`Cause Group`)) +
   #geom_bar(stat="identity", position="stack", color="black", size=0.01) + 
   geom_line() +
   theme_minimal() +
   scale_color_viridis_d() +
-  scale_y_continuous(label=scales::comma_format(),
-                     limits=c(0,10000)) +
-  scale_x_discrete() +
+  scale_y_continuous(label=scales::comma_format()) +
   theme(axis.text.x = element_text(angle=90),
-        legend.position = "bottom") +
-  labs(x="Year",
+        legend.position="bottom") +
+  labs(x="Week of Year",
        y="Observed Deaths",
-       title="Total Deaths by Year and Age Banded Cohort",
+       title="Total Deaths by Primary Cause of Death",
        caption="Source: CDC",
-       fill="Age Cohort") +
-  facet_wrap(facets= `Cause Group`~., ncol=1)
+       color="Cause of Death") +
+  facet_wrap(facets= Year~., ncol=5) 
 
 plot5
   
 ```
 
-Again, and I say this with all due force of professionalism, **she should stick to running a master's program in Economics at the Hop and stay away from mortality analysis**.
+Again, and I say this with all force of me *trying* to not be a dick about shitty analysis passed off with a veneer of some authority or expertise: with the full available 2020 data plotted side-by-side with prior years' death counts split out by cause-of-death, do *you* see anything off?
 
+*This content does not necessarily express the viewpoint of my employer or the CDC, and furthermore not constitute an actuarial opinion professionally rendered, nor is it intended for that purpose.*
 
 --
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
