@@ -207,8 +207,8 @@ prior years’ death counts split out by cause-of-death, do *you* see
 anything off?
 
 *This content does not necessarily express the viewpoint of my employer
-or the CDC, and furthermore not constitute an actuarial opinion
-professionally rendered, nor is it intended for that purpose.*
+or the CDC. This content furthermore does not constitute an actuarial
+opinion professionally rendered, nor is it intended for that purpose.*
 
 – This is an R Markdown document. Markdown is a simple formatting syntax
 for authoring HTML, PDF, and MS Word documents. For more details on

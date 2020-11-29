@@ -258,6 +258,7 @@ plot4 <- plot4.data %>%
   scale_x_discrete(breaks=seq(1999, 2020, 1)) +
   theme(axis.text.x = element_text(angle=90)) +
   labs(x="Year",
+       subtitle="Deaths counted from Feb through Oct of each year",
        y="Observed Deaths",
        title="Total Deaths by Year and Age Banded Cohort",
        caption="Source: CDC",
@@ -335,7 +336,10 @@ plot5 <- final_table2 %>%
   scale_color_viridis_d() +
   scale_y_continuous(label=scales::comma_format()) +
   theme(axis.text.x = element_text(angle=90),
-        legend.position="bottom") +
+        legend.position="bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size="8")) +
+  guides(color=guide_legend(ncol=3, byrow=T)) +
   labs(x="Week of Year",
        y="Observed Deaths",
        title="Total Deaths by Primary Cause of Death",
@@ -349,7 +353,7 @@ plot5
 
 Again, and I say this with all force of me *trying* to not be a dick about shitty analysis passed off with a veneer of some authority or expertise: with the full available 2020 data plotted side-by-side with prior years' death counts split out by cause-of-death, do *you* see anything off?
 
-*This content does not necessarily express the viewpoint of my employer or the CDC, and furthermore not constitute an actuarial opinion professionally rendered, nor is it intended for that purpose.*
+*This content does not necessarily express the viewpoint of my employer or the CDC. This content furthermore does not constitute an actuarial opinion professionally rendered, nor is it intended for that purpose.*
 
 --
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
